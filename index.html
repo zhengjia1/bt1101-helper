@@ -348,6 +348,8 @@
     .variable-rename-dismiss { min-width: 180px; padding: 14px 22px; font-size: 15px; font-weight: 800; }
     .danger-btn { border-color: #9f2f20; background: #9f2f20; color: white; }
     .kmeans-scale-toggle { display: flex !important; align-items: center; gap: 10px; align-self: end; min-height: 52px; cursor: pointer; }
+    #twoSamplePairedField.hidden { display: none !important; }
+    #intervalExcludeMissingField.hidden { display: none !important; }
     .kmeans-scale-toggle input { appearance: none; width: 44px; height: 24px; flex: 0 0 44px; margin: 0; border: 1px solid #8d857a; border-radius: 999px; background: #d8d1c7; cursor: pointer; transition: .15s ease; }
     .kmeans-scale-toggle input::before { content: ""; display: block; width: 18px; height: 18px; margin: 2px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: transform .15s ease; }
     .kmeans-scale-toggle input:checked { border-color: var(--blue); background: var(--blue); }
@@ -596,6 +598,7 @@
                 <label id="successValueField" class="hidden">Value representing success<input class="column-input interval-input" id="intervalSuccess" type="text" value="yes"></label>
                 <label id="conditionOperatorField" class="hidden">Condition<select class="column-input interval-input" id="intervalConditionOperator"><option value="&gt;">more than (&gt;)</option><option value="&gt;=">at least (≥)</option><option value="&lt;">less than (&lt;)</option><option value="&lt;=">at most (≤)</option><option value="==">equal to (=)</option><option value="!=">not equal to (≠)</option></select></label>
                 <label id="conditionThresholdField" class="hidden">Cutoff value<input class="column-input interval-input" id="intervalConditionThreshold" type="number" step="any" placeholder="22"></label>
+                <label class="kmeans-scale-toggle hidden" id="intervalExcludeMissingField"><input id="intervalExcludeMissing" type="checkbox" role="switch"><span>Exclude missing response values</span></label>
                 <label id="marginField" class="hidden">Desired margin of error<input class="column-input interval-input" id="intervalMargin" type="number" min="0" step="any" placeholder="0.5"></label>
               </div>
               <div class="shape-guide" id="intervalNote"><strong>Mean with unknown standard deviation</strong><span>Uses a t critical value with n − 1 degrees of freedom.</span></div>
@@ -659,6 +662,7 @@
                 <label>Hypothesized value<input class="column-input one-sample-input" id="oneSampleNull" type="number" step="any" value="50" placeholder="50"></label>
                 <label>Significance level<input class="column-input one-sample-input" id="oneSampleAlpha" type="number" min="0.001" max="0.5" step="any" value="0.05"></label>
                 <label>Population filter (optional)<input class="column-input one-sample-input" id="oneSampleFilter" type="text" placeholder='Product == "Book"'></label>
+                <label class="kmeans-scale-toggle"><input id="oneSampleExcludeMissing" type="checkbox" role="switch"><span>Exclude missing response values</span></label>
                 <label id="oneSamplePopulationField" class="hidden">Population description<input class="column-input one-sample-input" id="oneSamplePopulation" type="text" value="transactions" placeholder="book sales transactions"></label>
                 <label id="oneSampleConditionField" class="hidden">Success condition (optional)<input class="column-input one-sample-input" id="oneSampleCondition" type="text" placeholder="Amount > 50"></label>
                 <label id="oneSampleSuccessField" class="hidden">Value representing success<input class="column-input one-sample-input" id="oneSampleSuccess" type="text" value="yes" placeholder="yes"></label>
@@ -685,26 +689,18 @@
 
         <section class="bench hidden" id="twoSampleBench" aria-label="Two-sample mean and variance tests">
           <article class="panel">
-            <div class="panel-head"><div class="panel-title"><strong>Test setup</strong><small>two populations</small></div><div class="panel-actions"><select class="sample-select" id="twoSampleExamPreset" aria-label="Choose a two-sample exam example"><option value="book-dvd">Book vs DVD</option><option value="collector-book">CollectorBook vs Book</option></select><button class="sample-btn" id="loadTwoSampleSetupBtn" type="button">Use exam sample</button></div></div>
+            <div class="panel-head"><div class="panel-title"><strong id="twoSampleTestTitle">Two-sample t-test</strong></div></div>
             <div class="one-sample-form">
               <div class="calculator-sentence">
-                <span>I want to compare</span>
-                <select id="twoSampleParameter"><option value="mean">population means</option><option value="variance">population variances</option></select>
-                <span>using</span>
-                <select id="twoSampleDesign"><option value="independent">independent samples</option><option value="paired">paired samples</option></select>
-                <span>for</span>
-                <select id="twoSampleAlternative"><option value="two.sided">a difference</option><option value="greater">group 1 &gt; group 2</option><option value="less">group 1 &lt; group 2</option></select>
+                <span>I want to test</span>
+                <select id="twoSampleParameter" aria-label="Population parameter"><option value="mean">population means</option><option value="variance">population variances</option></select>
               </div>
+              <label class="kmeans-scale-toggle" id="twoSamplePairedField"><input id="twoSamplePaired" type="checkbox" role="switch"><span>Paired samples</span></label>
               <div class="interval-fields">
                 <label>Dataset name<input class="column-input two-sample-input" id="twoSampleDataset" value="dataset"></label>
-                <label id="twoResponse1Label">Response column<input class="column-input two-sample-input" id="twoSampleResponse1" value="column1"></label>
-                <label id="twoResponse2Field" class="hidden">Second response column<input class="column-input two-sample-input" id="twoSampleResponse2" value="column2"></label>
-                <label id="twoGroupField">Grouping column<input class="column-input two-sample-input" id="twoSampleGroup" value="column2"></label>
-                <label>Group 1 label<input class="column-input two-sample-input" id="twoSampleGroup1" value="group A"></label>
-                <label>Group 2 label<input class="column-input two-sample-input" id="twoSampleGroup2" value="group B"></label>
-                <label id="equalVarianceField">Variance assumption<select class="column-input" id="twoSampleEqualVariance"><option value="false">Do not assume equal variances</option><option value="true">Assume equal variances</option></select></label>
-                <label id="twoPreparationField">Data preparation<select class="column-input" id="twoSamplePreparation"><option value="groups">Use the two existing group labels</option><option value="collector">Create CollectorBook using boxplot outliers (range = 3)</option></select></label>
-                <label>Significance level<input class="column-input two-sample-input" id="twoSampleAlpha" type="number" value="0.05" min="0.001" max="0.5" step="any"></label>
+                <label id="twoResponse1Label">Column 1 (response)<input class="column-input two-sample-input" id="twoSampleResponse1" value="column1"></label>
+                <label id="twoResponse2Field">Column 2 (grouping)<input class="column-input two-sample-input" id="twoSampleResponse2" value="column2"></label>
+                <label id="twoSampleAlternativeField">Alternative hypothesis<select class="column-input" id="twoSampleAlternative"><option value="two.sided">PP₁ differs from PP₂ (two.sided)</option><option value="greater">PP₁ is more than PP₂ (greater)</option><option value="less">PP₁ is less than PP₂ (less)</option></select></label>
               </div>
               <div class="hypothesis-card" id="twoSampleHypotheses"></div>
               <pre class="generated-code one-sample-code" id="twoSampleCode"></pre>
@@ -2297,7 +2293,7 @@
     groups.forEach((group, groupIndex) => {
       const details = document.createElement("details");
       details.className = "tutorial";
-      details.open = groupIndex < 2;
+      details.open = false;
       details.dataset.group = group.title.toLowerCase();
       const summary = document.createElement("summary");
       summary.innerHTML = `<span>${group.title}</span>`;
@@ -2445,6 +2441,10 @@
     ];
 
     function detect(text) {
+      if (isGamesHowellOutput(text) || /Welch\s+ANOVA|welch_anova_test\s*\(/i.test(text)) {
+        const group = groups.find(group => group.items.some(item => item[0] === "anova-many"));
+        return { id: "anova-many", title: group?.items.find(item => item[0] === "anova-many")?.[1] || "ANOVA", tutorial: group?.short || "Statistical inference", gamesHowell: isGamesHowellOutput(text) };
+      }
       const parsedLpModel = parseLpModelText(text);
       if (parsedLpModel.ok) {
         const lpGroup = groups.find(group => group.items.some(entry => entry[0] === "lpsolve"));
@@ -2605,6 +2605,7 @@
         nullValue: Number($("#oneSampleNull").value),
         alpha: Number($("#oneSampleAlpha").value),
         filter: $("#oneSampleFilter").value.trim(),
+        excludeMissing: $("#oneSampleExcludeMissing").checked,
         population: $("#oneSamplePopulation").value.trim() || "observations",
         condition: $("#oneSampleCondition").value.trim(),
         success: $("#oneSampleSuccess").value.trim() || "yes"
@@ -2622,7 +2623,9 @@
       const data = rColumnName(settings.dataset);
       const column = rColumnName(settings.column);
       const confidence = 1-settings.alpha;
-      const preparation = settings.filter ? `analysis_data <- ${data} %>% dplyr::filter(${settings.filter})` : `analysis_data <- ${data}`;
+      const preparation = settings.excludeMissing
+        ? `analysis_data <- ${data} %>%\n  dplyr::filter(${settings.filter ? `\n    ${settings.filter},\n    !is.na(${column})\n  ` : `!is.na(${column})`})`
+        : settings.filter ? `analysis_data <- ${data} %>% dplyr::filter(${settings.filter})` : `analysis_data <- ${data}`;
       if (settings.parameter === "mean") {
         return `# Prepare the population to analyse\n${preparation}\n\n# One-sample t-test for a population mean\nt.test(analysis_data$${column}, mu = ${settings.nullValue}, alternative = "${settings.alternative}", conf.level = ${confidence})`;
       }
@@ -2700,7 +2703,8 @@
     }
 
     function twoSampleSettings() {
-      return { parameter:$("#twoSampleParameter").value, design:$("#twoSampleDesign").value, alternative:$("#twoSampleAlternative").value, dataset:$("#twoSampleDataset").value.trim()||"dataset", response1:$("#twoSampleResponse1").value.trim()||"column1", response2:$("#twoSampleResponse2").value.trim()||"column2", group:$("#twoSampleGroup").value.trim()||"column2", group1:$("#twoSampleGroup1").value.trim()||"group A", group2:$("#twoSampleGroup2").value.trim()||"group B", equalVariance:$("#twoSampleEqualVariance").value, preparation:$("#twoSamplePreparation").value, alpha:Number($("#twoSampleAlpha").value) };
+      const parameter = $("#twoSampleParameter").value;
+      return { parameter, design: parameter === "mean" && $("#twoSamplePaired").checked ? "paired" : "independent", alternative: parameter === "mean" ? $("#twoSampleAlternative").value : "two.sided", dataset: $("#twoSampleDataset").value.trim() || "dataset", response1: $("#twoSampleResponse1").value.trim() || "column1", response2: $("#twoSampleResponse2").value.trim() || "column2", alpha: 0.05 };
     }
 
     function twoSampleHypotheses(s) {
@@ -2716,28 +2720,22 @@
     }
 
     function buildTwoSampleCode(s){
-      const data=rColumnName(s.dataset),r1=rColumnName(s.response1),r2=rColumnName(s.response2),group=rColumnName(s.group),confidence=1-s.alpha;
-      const groupValues=`c("${rString(s.group1)}", "${rString(s.group2)}")`;
-      const groupedData=s.preparation==="collector"&&s.parameter==="mean"?`# Retain Book transactions and identify CollectorBook outliers using boxplot range = 3\nbook_data <- ${data} %>% dplyr::filter(Product == "Book")\nboxplot_book <- boxplot(book_data$${r1}, horizontal = TRUE, range = 3, plot = FALSE)\nanalysis_data <- book_data %>%\n  dplyr::mutate(${group} = ifelse(${r1} %in% boxplot_book$out, "${rString(s.group2)}", "${rString(s.group1)}"))`:`# Retain only the two groups being compared\nanalysis_data <- ${data} %>% dplyr::filter(${group} %in% ${groupValues})`;
-      const factorOrder=`analysis_data$${group} <- factor(analysis_data$${group}, levels = ${groupValues})`;
-      if(s.parameter==="variance")return `${groupedData}\n${factorOrder}\n\n# Fisher's F-test for two population variances\nvar.test(${r1} ~ ${group}, data = analysis_data, alternative = "${s.alternative}", conf.level = ${confidence})`;
-      if(s.design==="paired")return `# Paired two-sample t-test\nt.test(${data}$${r1}, ${data}$${r2}, alternative = "${s.alternative}", paired = TRUE, conf.level = ${confidence})`;
-      return `${groupedData}\n${factorOrder}\n\n# Independent two-sample t-test\nt.test(${r1} ~ ${group}, data = analysis_data, alternative = "${s.alternative}", paired = FALSE, var.equal = ${s.equalVariance.toUpperCase()}, conf.level = ${confidence})`;
+      const data = rColumnName(s.dataset), r1 = rColumnName(s.response1), r2 = rColumnName(s.response2);
+      if (s.parameter === "variance") return `var.test(${r1} ~ ${r2}, data = ${data})`;
+      const columns = s.design === "paired" ? `${data}$${r1}, ${data}$${r2}` : `${data}$${r1} ~ ${data}$${r2}`;
+      return `t.test(${columns},\n       alternative = "${s.alternative}",${s.design === "paired" ? "\n       paired = TRUE," : ""}\n       var.equal = FALSE,\n       conf.level = 0.95)`;
     }
 
     function syncTwoSampleForm(){
-      const s=twoSampleSettings(),variance=s.parameter==="variance";
-      $("#twoSampleDesign").querySelector('option[value="paired"]').disabled=variance;
-      if(variance&&s.design==="paired")$("#twoSampleDesign").value="independent";
-      const paired=$("#twoSampleDesign").value==="paired"&&!variance;
-      $("#twoResponse2Field").classList.toggle("hidden",!paired);
-      $("#twoGroupField").classList.toggle("hidden",paired);
-      $("#equalVarianceField").classList.toggle("hidden",paired||variance);
-      $("#twoPreparationField").classList.toggle("hidden",paired||variance);
-      $("#twoResponse1Label").firstChild.textContent=paired?"First response column":"Response column";
-      const current=twoSampleSettings(),h=twoSampleHypotheses(current);
-      $("#twoSampleHypotheses").innerHTML=`<strong>Hypotheses</strong><span>${escapeHtml(h[0])}</span><span>${escapeHtml(h[1])}</span>`;
-      $("#twoSampleCode").textContent=buildTwoSampleCode(current);
+      const s = twoSampleSettings(), variance = s.parameter === "variance", paired = s.design === "paired";
+      $("#twoSamplePairedField").classList.toggle("hidden", variance);
+      $("#twoSampleAlternativeField").classList.toggle("hidden", variance);
+      $("#twoSampleTestTitle").textContent = variance ? "Fisher's F test" : paired ? "Paired two-sample t-test" : "Independent two-sample t-test";
+      $("#twoResponse1Label").firstChild.textContent = paired ? "Column 1 (first response)" : "Column 1 (response)";
+      $("#twoResponse2Field").firstChild.textContent = paired ? "Column 2 (second response)" : "Column 2 (grouping)";
+      const h = twoSampleHypotheses(s);
+      $("#twoSampleHypotheses").innerHTML = `<strong>Hypotheses</strong><span>${escapeHtml(h[0])}</span><span>${escapeHtml(h[1])}</span>`;
+      $("#twoSampleCode").textContent = buildTwoSampleCode(s);
       renderTwoSampleInterpretation();
     }
 
@@ -2757,9 +2755,9 @@
       if(reject===null){box.innerHTML=`<div class="prose-card"><p class="waiting-note">${escapeHtml(pValueDecisionError(result.operator,result.pValue,s.alpha))}</p></div>`;return}
       const pDisplay=result.operator==="="?formatPValue(result.pValue, s.alpha):`${result.operator} ${formatPValue(result.pValue, s.alpha)}`,decision=reject?"reject":"fail to reject",evidence=reject?"sufficient":"insufficient",comparison=pValueComparison(result.operator,result.pValue,s.alpha),h=twoSampleHypotheses(s);
       const relation=s.alternative==="greater"?"greater than":s.alternative==="less"?"less than":"different from";
-      const claim=s.parameter==="variance" ? `the population variance of ${s.response1} for ${s.group1} is ${relation} that for ${s.group2}`
+      const claim=s.parameter==="variance" ? `the population variances of ${s.response1} differ between the two groups in ${s.response2}`
         : s.design==="paired" ? `the population mean paired difference (${s.response1} minus ${s.response2}) is ${relation} 0`
-        : `the population mean ${s.response1} for ${s.group1} is ${relation} that for ${s.group2}`;
+        : `the population mean of ${s.response1} for group 1 is ${relation} that for group 2 in ${s.response2}`;
       const statistic=result.statLabel&&result.statValue?`${result.statLabel} = ${formatFinalNumber(Number(result.statValue))} and `:"";
       const prose=`${h[0]}\n\n${h[1]}\n\nSince ${statistic}the p-value is ${pDisplay}, which is ${comparison} ${s.alpha}, we ${decision} the null hypothesis at the ${(s.alpha*100).toLocaleString()}% significance level. There is ${evidence} evidence to conclude that ${claim}.`;
       box.innerHTML=`<div class="prose-card"><h3>Generated interpretation</h3><p id="twoSampleGeneratedProse">${escapeHtml(prose)}</p><button class="sample-btn inline-copy" id="copyTwoSampleProseBtn">Copy prose</button></div>`;
@@ -2770,7 +2768,7 @@
     function buildAnovaNormalityCode(s){const data=rColumnName(s.dataset),response=rColumnName(s.response),group=rColumnName(s.group);return `${data} %>%\n  group_by(${group}) %>%\n  shapiro_test(${response})`}
     function buildAnovaVarianceCode(s){const data=rColumnName(s.dataset),response=rColumnName(s.response),group=rColumnName(s.group);return s.groupCount===2?`var.test(${data}$${response} ~ ${data}$${group})`:`bartlett.test(${response} ~ ${group}, data = ${data})`}
     function buildStandardAnovaCode(s){const data=rColumnName(s.dataset),response=rColumnName(s.response),group=rColumnName(s.group);return `model <- aov(${response} ~ ${group}, data = ${data})\nsummary(model)\nTukeyHSD(model)`}
-    function buildWelchAnovaCode(s){const data=rColumnName(s.dataset),response=rColumnName(s.response),group=rColumnName(s.group);return `${data} %>% welch_anova_test(${response} ~ ${group})\n${data} %>% games_howell_test(${response} ~ ${group})`}
+    function buildWelchAnovaCode(s){const data=rColumnName(s.dataset),response=rColumnName(s.response),group=rColumnName(s.group);return `${data} %>% welch_anova_test(${response} ~ ${group})\n${data} %>% games_howell_test(${response} ~ ${group}) %>% knitr::kable()`}
     let anovaNormalityWasAssumed = null,anovaVarianceRoute = null,anovaVarianceProse = "",anovaStandardProse = "",anovaWelchProse = "",lastAnovaVarianceCode = "",lastAnovaStandardCode = "",lastAnovaWelchCode = "";
     const anovaVarianceCopyState={code:false,prose:false};
     const anovaStandardCopyState={code:false,prose:false},anovaWelchCopyState={code:false,prose:false};
@@ -2876,23 +2874,46 @@
       if(!p||![statistic,dfn,dfd,p.value].every(Number.isFinite))return{error:"The Welch statistic, degrees of freedom, or p-value could not be read."};
       return{p,statistic,dfn,dfd};
     }
+    function isGamesHowellOutput(text){
+      return /games[\s_–-]*howell/i.test(text) || /\.y\.group1group2estimateconf\.lowconf\.highp\.adj/i.test(text.replace(/[\s|]/g,""));
+    }
     function parseGamesHowellResult(text){
-      if(!/group1\s+group2|games.?howell/i.test(text))return{error:"Paste the Games–Howell pairwise-comparison tibble, including group1, group2, and p.adj."};
+      if(!isGamesHowellOutput(text))return{error:"Paste the Games–Howell table, including .y., group1, group2, and p.adj."};
       const rows=[];
+      let invalid=false;
       text.split(/\r?\n/).forEach(line=>{
-        const clean=line.replace(/^\s*##\s?/,"").replace(/e([+-])\s+(\d+)/gi,"e$1$2").replace(/(<=|>=|<|>)\s+(?=[0-9.])/g,"$1").trim();
-        if(!/^\d+\s+/.test(clean))return;
-        const parts=clean.split(/\s+/),last=parts[parts.length-1],hasSignif=/^(?:ns|\*+)$/.test(last),pToken=parts[hasSignif?parts.length-2:parts.length-1],p=parseAnovaPrintedP(pToken);
-        if(p&&Number.isFinite(p.value))rows.push({group1:parts[2]||"group 1",group2:parts[3]||"group 2",p});
+        const clean=line.replace(/^\s*(?:>{1,3}\s*)?(?:#{1,3}\s*)?/,"").replace(/\\([_*])/g,"$1").replace(/<br\s*\/?\s*>/gi,"").replace(/e([+-])\s+(\d+)/gi,"e$1$2").replace(/(<=|>=|<|>)\s+(?=[0-9.])/g,"$1").trim();
+        if(!clean||/group1|Welch|\bDFn\b|^#|^[-:|\s]+$|<chr>|<dbl>|<int>|^\.\.\.|^ℹ/.test(clean))return;
+        const delimited=clean.includes("|")||clean.includes("\t");
+        let parts=delimited?clean.replace(/^\||\|$/g,"").split(clean.includes("|")?"|":"\t").map(value=>value.trim()):clean.split(/\s+/);
+        if(/^\d+$/.test(parts[0])&&parts.length>=8)parts=parts.slice(1);
+        if(parts.length<7)return;
+        const p=parseAnovaPrintedP(parts[6]);
+        if(!p||!Number.isFinite(p.value)||p.value<0||p.value>1||!parts[1]||!parts[2]||!parts.slice(3,6).every(value=>value!==""&&Number.isFinite(Number(value)))){invalid=true;return}
+        rows.push({response:parts[0],group1:parts[1],group2:parts[2],p});
       });
+      if(invalid)return{error:"A Games–Howell row contains an unreadable estimate, interval, or adjusted p-value. Paste the complete kable() table."};
       return rows.length?{rows}:{error:"No readable Games–Howell comparison rows were found."};
+    }
+    function gamesHowellProse(games,alpha){
+      if(games.rows.some(row=>anovaPDecision(row.p,alpha)===null))return{error:"A Games–Howell adjusted p-value bound is inconclusive. Paste more precise pairwise p-values."};
+      const significant=games.rows.filter(row=>anovaPDecision(row.p,alpha)===true);
+      const summary=`Games–Howell comparisons for ${games.rows[0].response}: ${significant.length} of ${games.rows.length} reported pairwise comparisons were statistically significant at the ${(alpha*100).toLocaleString()}% significance level.`;
+      return{prose:summary+(significant.length?"\nSignificant differences: "+significant.map(row=>`${row.group1} vs ${row.group2} (adjusted p ${row.p.operator} ${row.p.raw})`).join("; ")+".":" There is insufficient evidence of a difference for any reported pair.")};
     }
     function anovaPDecision(p,alpha){return pValueDecision(p.operator,p.value,alpha)}
     function renderAnovaWelchInterpretation(){
       const box=$("#anovaWelchInterpretation"),copy=$("#copyAnovaWelchProseBtn"),welchText=$("#anovaWelchOutput").value,gamesText=$("#anovaGamesHowellOutput").value,settings=anovaBlockSettings(),alpha=settings.alpha,validAlpha=Number.isFinite(alpha)&&alpha>0&&alpha<1;
       anovaWelchProse="";copy.disabled=true;
-      if(!welchText.trim()){box.classList.remove("is-error");box.textContent="Paste the Welch ANOVA result and, when significant, the Games–Howell output.";return}
       if(!validAlpha){box.classList.add("is-error");box.textContent="Enter a significance level between 0 and 1 before interpreting the Welch result.";return}
+      if(!welchText.trim()){
+        if(!gamesText.trim()){box.classList.remove("is-error");box.textContent="Paste the Welch ANOVA result or the Games–Howell table.";return}
+        const games=parseGamesHowellResult(gamesText),result=games.error?games:gamesHowellProse(games,alpha);
+        box.classList.toggle("is-error",Boolean(result.error));
+        if(result.error){box.textContent=result.error;return}
+        anovaWelchProse=result.prose+"\nThe omnibus Welch ANOVA result was not supplied, so no overall ANOVA decision is made.";
+        box.textContent=anovaWelchProse;copy.disabled=anovaVarianceRoute==="standard";return;
+      }
       const welch=parseWelchAnovaResult(welchText);
       if(welch.error){box.classList.add("is-error");box.textContent=welch.error;return}
       const reject=anovaPDecision(welch.p,alpha);
@@ -2904,8 +2925,7 @@
         const games=parseGamesHowellResult(gamesText);
         if(games.error){box.classList.add("is-error");box.textContent=base+"\n"+games.error;return}
         if(games.rows.some(row=>anovaPDecision(row.p,alpha)===null)){box.classList.add("is-error");box.textContent=base+"\nA Games–Howell adjusted p-value bound is inconclusive. Paste more precise pairwise p-values.";return}
-        const significant=games.rows.filter(row=>anovaPDecision(row.p,alpha)===true),expected=settings.groupCount*(settings.groupCount-1)/2,all=significant.length===games.rows.length;
-        postHoc=all&&games.rows.length===expected?`Post-hoc pairwise comparisons were conducted using the Games–Howell test. The results showed that the mean ${settings.response} differs significantly between all groups of ${settings.group}.`:`Post-hoc pairwise comparisons were conducted using the Games–Howell test. ${significant.length} of ${games.rows.length} reported pairwise comparisons were statistically significant at the ${percent}% significance level.`;
+        postHoc=gamesHowellProse(games,alpha).prose;
       }else postHoc="Post-hoc pairwise comparisons are not required because the Welch ANOVA was not statistically significant.";
       anovaWelchProse=base+"\n"+postHoc;box.classList.remove("is-error");box.textContent=anovaWelchProse;copy.disabled=anovaVarianceRoute==="standard";
     }
@@ -4402,6 +4422,7 @@ legend("topright", legend = "Group mean", col = "red", pch = 19, cex = 0.8)`;
         proportion: Number(proportionText),
         proportionProvided: Boolean(proportionText),
         proportionMode: $("#intervalProportionMode").value,
+        excludeMissing: $("#intervalExcludeMissing").checked,
         population: $("#intervalPopulation").value.trim() || "observations",
         success: $("#intervalSuccess").value.trim() || "yes",
         conditionOperator: $("#intervalConditionOperator").value,
@@ -4435,8 +4456,10 @@ legend("topright", legend = "Group mean", col = "red", pch = 19, cex = 0.8)`;
       const upperName = `uCI${safeLabel}${safeLevel}`;
       const lowerName = `lCI${safeLabel}${safeLevel}`;
       const tailProbability = String(Number((((1 - v.confidence / 100) / 2)).toPrecision(12)));
+      const conditionData = v.excludeMissing ? "valid_rows" : rColumnName(v.dataset);
+      const validRows = v.excludeMissing ? `valid_rows <- ${rColumnName(v.dataset)} %>%\n  dplyr::filter(!is.na(${rColumnName(v.label)}))\n\n` : "";
       const sampleCalculation = v.proportionMode === "condition"
-        ? `matching_rows <- ${rColumnName(v.dataset)} %>% dplyr::filter(${rColumnName(v.label)} ${v.conditionOperator} ${v.threshold})\nn <- nrow(${rColumnName(v.dataset)})\nsample_proportion <- nrow(matching_rows) / n`
+        ? `${validRows}matching_rows <- ${conditionData} %>%${v.excludeMissing ? "\n  " : " "}dplyr::filter(${rColumnName(v.label)} ${v.conditionOperator} ${v.threshold})\n${v.excludeMissing ? "\n" : ""}n <- nrow(${conditionData})\nsample_proportion <- nrow(matching_rows) / n`
         : `values <- na.omit(${dataRef})\nsuccess_value <- "${rString(v.success)}"\nsuccesses <- sum(as.character(values) == success_value)\nn <- length(values)\nsample_proportion <- successes / n`;
       return `${sampleCalculation}\ntail_probability <- ${tailProbability}\nmargin_error <- qnorm(1 - tail_probability) * sqrt(sample_proportion * (1 - sample_proportion) / n)\n\n${upperName} <- sample_proportion + margin_error\n${lowerName} <- sample_proportion - margin_error\nprint(cbind(${lowerName}, ${upperName}), digits = 4)`;
     }
@@ -4527,6 +4550,7 @@ legend("topright", legend = "Group mean", col = "red", pch = 19, cex = 0.8)`;
       $("#successValueField").classList.toggle("hidden", !proportion || sampleSize || conditionProportion);
       $("#conditionOperatorField").classList.toggle("hidden", !conditionProportion);
       $("#conditionThresholdField").classList.toggle("hidden", !conditionProportion);
+      $("#intervalExcludeMissingField").classList.toggle("hidden", type !== "confidence" || !conditionProportion);
       $("#marginField").classList.toggle("hidden", !sampleSize);
       $("#stdevField").classList.toggle("hidden", proportion);
       $("#sampleSizeField").firstChild.textContent = proportion ? "Sample size" : "Sample size (optional)";
@@ -4909,6 +4933,17 @@ knitr::kable(
       const text = $("#inputText").value.trim();
       if (!text) { showToast("Paste an RStudio output first"); $("#inputText").focus(); return; }
       const routed = state.id === "universal" ? detect(text) : { id: state.id, title: state.title, tutorial: state.tutorial };
+      if (state.id === "universal" && routed?.id === "anova-many") {
+        setActive("anova-many", routed.title, routed.tutorial);
+        resetAnovaBranchCopyState("welch", "all");
+        $("#anovaWelchOutput").value = /Welch\s+ANOVA/i.test(text) ? text : "";
+        $("#anovaGamesHowellOutput").value = routed.gamesHowell ? text : "";
+        renderAnovaWelchInterpretation();
+        setLpPanelCollapsed($("#anovaWelchPanel"), false);
+        requestAnimationFrame(() => $("#anovaWelchPanel").scrollIntoView({ behavior: "smooth", block: "start" }));
+        showToast("ANOVA output detected and loaded");
+        return;
+      }
       if (state.id === "universal" && routed?.id === "lpsolve" && routed.parsedModel?.ok) {
         setActive("lpsolve", routed.title, routed.tutorial);
         $("#lpSmartInput").value = text;
@@ -5396,11 +5431,19 @@ knitr::kable(
       resetAnovaBranchCopyState("welch","prose");renderAnovaBlocks();showToast("Welch and Games–Howell outputs loaded");
     });
     $("#copyAnovaWelchProseBtn").addEventListener("click",async()=>{if(!anovaWelchProse)return;try{await writeAnswerText(anovaWelchProse);showToast("Welch ANOVA prose copied")}catch{showToast("Clipboard access is unavailable")}});
-    ["#twoSampleParameter","#twoSampleDesign","#twoSampleAlternative","#twoSampleEqualVariance","#twoSamplePreparation"].forEach(selector=>$(selector).addEventListener("change",syncTwoSampleForm));
-    document.querySelectorAll(".two-sample-input").forEach(input=>input.addEventListener("input",syncTwoSampleForm));
-    $("#twoSampleOutputText").addEventListener("input",renderTwoSampleInterpretation);
-    $("#loadTwoSampleSetupBtn").addEventListener("click",()=>{const collector=$("#twoSampleExamPreset").value==="collector-book";$("#twoSampleParameter").value="mean";$("#twoSampleDesign").value="independent";$("#twoSampleDataset").value="ST";$("#twoSampleResponse1").value="Amount";$("#twoSampleResponse2").value="column2";$("#twoSampleGroup").value=collector?"Pdt_type":"Product";$("#twoSampleGroup1").value="Book";$("#twoSampleGroup2").value=collector?"Collector Book":"dvd";$("#twoSampleAlternative").value=collector?"less":"two.sided";$("#twoSamplePreparation").value=collector?"collector":"groups";$("#twoSampleEqualVariance").value="false";$("#twoSampleAlpha").value="0.05";syncTwoSampleForm();showToast(collector?"CollectorBook comparison loaded":"Book-versus-DVD comparison loaded") });
-    $("#loadTwoSampleOutputBtn").addEventListener("click",()=>{const variance=$("#twoSampleParameter").value==="variance",collector=$("#twoSamplePreparation").value==="collector";$("#twoSampleOutputText").value=variance?"F test to compare two variances\\n\\ndata: Amount by Product\\nF = 1.42, num df = 29, denom df = 31, p-value = 0.326":collector?"Welch Two Sample t-test\\n\\ndata: Amount by Pdt_type\\nt = -40.5, df = 25.2, p-value < 2.2e-16":"Welch Two Sample t-test\\n\\ndata: Amount by Product\\nt = 8.03, df = 180.4, p-value = 3.34e-14";renderTwoSampleInterpretation();showToast("Sample output loaded")});
+    ["#twoSampleParameter", "#twoSamplePaired", "#twoSampleAlternative"].forEach(selector => $(selector).addEventListener("change", syncTwoSampleForm));
+    document.querySelectorAll(".two-sample-input").forEach(input => input.addEventListener("input", syncTwoSampleForm));
+    $("#twoSampleOutputText").addEventListener("input", renderTwoSampleInterpretation);
+    $("#loadTwoSampleOutputBtn").addEventListener("click", () => {
+      const s = twoSampleSettings(), variance = s.parameter === "variance", paired = s.design === "paired";
+      const heading = variance ? "F test to compare two variances" : paired ? "Paired t-test" : "Welch Two Sample t-test";
+      const columns = paired ? `${s.response1} and ${s.response2}` : `${s.response1} by ${s.response2}`;
+      const meanPValue = s.alternative === "greater" ? "3.845e-09" : s.alternative === "less" ? "1" : "7.69e-09";
+      const statistics = variance ? "F = 1.42, num df = 29, denom df = 31, p-value = 0.326" : `t = 8.03, df = 29, p-value = ${meanPValue}`;
+      $("#twoSampleOutputText").value = `${heading}\n\ndata: ${columns}\n${statistics}`;
+      renderTwoSampleInterpretation();
+      showToast("Sample output loaded");
+    });
     $("#pasteTwoSampleBtn").addEventListener("click",async()=>{try{$("#twoSampleOutputText").value=await navigator.clipboard.readText();renderTwoSampleInterpretation();showToast("Clipboard pasted")}catch{showToast("Use Ctrl/Cmd + V to paste")}});
     $("#copyTwoSampleCodeBtn").addEventListener("click",async()=>{try{await writeAnswerText($("#twoSampleCode").textContent);showToast("R code copied")}catch{showToast("Clipboard access is unavailable")}});
     $("#oneSampleAlternative").addEventListener("change", syncOneSampleForm);
@@ -5411,6 +5454,7 @@ knitr::kable(
       syncOneSampleForm();
     });
     document.querySelectorAll(".one-sample-input").forEach(input => input.addEventListener("input", syncOneSampleForm));
+    $("#oneSampleExcludeMissing").addEventListener("change", syncOneSampleForm);
     $("#oneSampleOutputText").addEventListener("input", renderOneSampleInterpretation);
     $("#loadOneSampleSetupBtn").addEventListener("click", () => {
       const proportion = $("#oneSampleParameter").value === "proportion";
@@ -5419,6 +5463,7 @@ knitr::kable(
       $("#oneSampleNull").value = proportion ? "0.5" : "50";
       $("#oneSampleAlpha").value = "0.05";
       $("#oneSampleFilter").value = proportion ? 'Product == "Book"' : "";
+      $("#oneSampleExcludeMissing").checked = false;
       $("#oneSamplePopulation").value = proportion ? "book sales transactions" : "observations";
       $("#oneSampleCondition").value = proportion ? "Amount > 50" : "";
       $("#oneSampleSuccess").value = "yes";
@@ -5450,6 +5495,7 @@ knitr::kable(
     });
     ["#intervalCalcType", "#intervalParameter", "#intervalProportionMode"].forEach(selector => $(selector).addEventListener("change", syncIntervalForm));
     $("#intervalConditionOperator").addEventListener("change", renderIntervalResult);
+    $("#intervalExcludeMissing").addEventListener("change", renderIntervalResult);
     $("#intervalStdev").addEventListener("change", event => {
       if (event.currentTarget.value === "known") {
         event.currentTarget.value = "unknown";
@@ -5460,6 +5506,7 @@ knitr::kable(
     });
     document.querySelectorAll(".interval-input").forEach(input => input.addEventListener("input", renderIntervalResult));
     $("#loadIntervalSampleBtn").addEventListener("click", () => {
+      $("#intervalExcludeMissing").checked = false;
       const type = $("#intervalCalcType").value;
       const proportion = $("#intervalParameter").value === "proportion";
       const conditionProportion = proportion && type !== "sample-size" && $("#intervalProportionMode").value === "condition";
@@ -5480,6 +5527,7 @@ knitr::kable(
     });
     $("#intervalResultInput").addEventListener("input", renderIntervalPastedResult);
     $("#loadIntervalResultSampleBtn").addEventListener("click", () => {
+      $("#intervalExcludeMissing").checked = false;
       const type = $("#intervalCalcType").value;
       const parameter = $("#intervalParameter").value;
       const conditionProportion = parameter === "proportion" && type !== "sample-size" && $("#intervalProportionMode").value === "condition";
